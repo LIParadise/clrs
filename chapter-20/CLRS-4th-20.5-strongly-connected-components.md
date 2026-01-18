@@ -9,20 +9,20 @@ STRONGLY-CONNECTED-COMPONENTS(G):
 ```
 
 Overall this algorithm feels a lot the same vibe as topological sort:
-normally given edge $(u, v)$, we know only $v.d < u.f$, but in _directed acyclic graph DAG_ we know better, namely $u.d < v.d < v.f < u.f$ i.e. if $(u, v)$ then v must be descendant to u.
+normally given edge $(u, v)$, we know only $v.d < u.f$, but in _directed acyclic graph DAG_ we know better, namely $u.d < v.d < v.f < u.f$ i.e. if $(u, v)$ then v must be descendant to u, in particular u finishes _later_.
 Thus if we list all the vertices in _decreasing finish time order_, we know that the list is topologically sorted, since it satiesfies every edge in the given DAG.
 
 How is this relate to SCC, though?
 Note the SCC quotient graph must be DAG, for we defined strongly connected components to be maximal.
 We may define discovery time and finish time for any given strongly connected component to be respectively the minimum discovery time and maximum finish time of the vertices within; such a definition is nice as it mirrors exactly the above lemma discussed in topological sort, namely, if we have two SCC components $A \neq B$, and there's some edge $(a \in A, b \in B)$, then $A.f > B.f$ (lemma 20.14).
 
-This explains why we need $G^T$ and the _largest finish time_: the vertex $v$ with maximum finish time must lie in some SCC $V$. Such SCC is nice since for any $U$ that have some path to $V$, those $U$ must have an _even larger finish time_, which is false since $v$ is the maximum, meaning there's no other SCC $U$ to $V$, meaning in $G^T$, there's _no way out from $V$_. Thus a simple DFS on any point in $V$, in particular $v$, outputs vertices iff they're in $V$.
+This explains why we need $G^T$ and the _largest finish time_: the vertex $v$ with maximum finish time must lie in some SCC $V$. Such SCC is nice since for any $U$ that have some path to $V$, those $U$ must have an _even larger finish time_, which is false since $v$ is the maximum, meaning there's no other SCC $U$ to $V$, meaning in $G^T$, there's <i>no way out from $V$</i>. Thus a simple DFS on any point in $V$, in particular $v$, outputs vertices iff they're in $V$ the SCC with greatest finish time. Subsequent SCCs with their decreasing finish time may try to go to explorered SCCs in $G^T$, but due to DFS coloring, these attempts are ignored.
 
 So the algorithm works, but why we need $G^T$?
 
-First, discovery time is of little help, simply because there's too many choices.
-So the natural question is, if we may know the SCC $V$ with _minimum_ finish time, then $V$ has no way out in $G$, which should then just... work?
-Problem is, it's **non-trivial** knowing which $V$ has the minimum finish time: vertex with _minimum_ finish time may _not_ be inside SCC with minimum finish time.
+First, discovery time is of little help, simply because in the beginning you may choose any arbitrary SCC.
+So the natural question is, if we know the SCC $V$ with _minimum_ finish time, then $V$ has no way out in $G$, which should then just... work?
+Problem is, it's **non-trivial** knowing <i>which $V$ has the minimum finish time</i>: vertex with _minimum_ finish time may _not_ be inside SCC with minimum finish time.
 
 ```mermaid
 graph TD
